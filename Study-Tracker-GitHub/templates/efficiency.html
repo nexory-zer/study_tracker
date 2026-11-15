@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% from '_macros.html' import stat with context %}
+{% block content %}
+{% include '_stats_nav.html' %}
+<div class="page-head"><div><p class="eyebrow">Время и задания</p><h1>Темп занятий</h1><p class="muted">Скорость выполнения заданий. Качество и сложность обучения оценивай по своим результатам.</p></div></div>
+<section class="stats-grid">{{ stat('Заданий в час', stats.rate) }}{{ stat('Устных в час', stats.oral_rate) }}{{ stat('Практических в час', stats.practical_rate) }}</section>
+<section class="card"><h2>Последние восемь недель</h2><div class="table-scroll"><table><thead><tr><th>Неделя с</th><th>Время</th><th>Заданий</th><th>Заданий / час</th><th>Изменение</th></tr></thead><tbody>
+{% for week in weeks %}<tr><td><a href="{{ url_for('analytics', date=week.date) }}">{{ week.date }}</a></td><td>{{ format_minutes(week.minutes) }}</td><td>{{ week.tasks }}</td><td>{{ week.rate }}</td><td>{% if loop.first %}—{% else %}{{ '%+.1f'|format(week.rate-weeks[loop.index0-1].rate) }}{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></section>
+<section class="card"><h2>Дни с самым высоким темпом</h2><div class="table-scroll"><table><thead><tr><th>Дата</th><th>Время</th><th>Заданий</th><th>Заданий / час</th></tr></thead><tbody>{% for day in ranked %}<tr><td><a href="{{ url_for('history', date=day.date) }}">{{ day.date }}</a></td><td>{{ format_minutes(day.minutes) }}</td><td>{{ day.tasks }}</td><td>{{ day.rate }}</td></tr>{% else %}<tr><td colspan="4">Появятся после первого занятия с указанным временем.</td></tr>{% endfor %}</tbody></table></div></section>
+<p class="muted">Темп — суммарное число заданий, делённое на суммарные часы. Для расчёта используются занятия с положительной длительностью. Занятия без заданий учитываются с нулём.</p>
+{% endblock %}

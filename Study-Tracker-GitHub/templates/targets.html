@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, target_card with context %}
+{% block content %}
+{% include '_stats_nav.html' %}
+<div class="page-head"><div><p class="eyebrow">Шаг за шагом</p><h1>Недельные планы</h1></div></div>
+<div class="period-nav"><a class="button secondary" aria-label="Предыдущая неделя" href="{{ url_for('targets', date=previous.isoformat()) }}">←</a><strong>Неделя с {{ start.strftime('%d.%m.%Y') }}</strong><a class="button secondary" aria-label="Следующая неделя" href="{{ url_for('targets', date=next_period.isoformat()) }}">→</a></div>
+<div class="dashboard-columns">
+<section class="session-list">{% for item in targets %}
+<article class="card">{{ target_card(item) }}
+<details><summary>Изменить план</summary><form method="post" class="inline-form">{{ csrf() }}<input type="hidden" name="week_start" value="{{ start }}"><input type="hidden" name="goal_id" value="{{ item.goal_id or '' }}"><input type="hidden" name="metric" value="{{ item.metric }}"><label>План<input type="number" name="target" min="1" max="{{ 7 if item.metric == 'days' else 100000 }}" value="{{ item.target }}" required></label><button class="button secondary">Сохранить</button></form>
+<form method="post" action="{{ url_for('delete_target', target_id=item.id) }}" data-confirm="Удалить этот недельный план?">{{ csrf() }}<input type="hidden" name="week_start" value="{{ start }}"><button class="button danger">Удалить план</button></form></details></article>
+{% else %}<div class="card empty"><h3>Неделя без плана</h3><p class="muted">Задай достижимый объём занятий.</p></div>{% endfor %}</section>
+<form method="post" class="card">{{ csrf() }}<h2>Добавить план</h2><input type="hidden" name="week_start" value="{{ start }}">
+<label>Учебная цель<select name="goal_id"><option value="">Все цели</option>{% for goal in goals %}<option value="{{ goal['id'] }}">{{ goal['name'] }}</option>{% endfor %}</select></label>
+<label>Показатель<select name="metric">{% for key, label in metrics.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}</select></label>
+<label>Значение<input type="number" name="target" min="1" max="100000" placeholder="Например, 600 минут = 10 часов" required></label>
+<button class="button primary">Сохранить план</button><p class="muted">Повторное сохранение той же цели и показателя обновляет план выбранной недели.</p></form>
+</div>
+{% endblock %}

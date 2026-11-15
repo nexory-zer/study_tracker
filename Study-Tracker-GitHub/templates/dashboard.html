@@ -1,0 +1,24 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, stat, session_list, target_card with context %}
+{% block content %}
+<div class="page-head"><h1>Сегодня</h1><time class="muted">{{ today }}</time></div>
+<section class="stats-grid today-stats">
+{{ stat('Время занятий', format_minutes(today_stats.minutes)) }}
+{{ stat('Решено заданий', today_stats.tasks) }}
+</section>
+{% include '_timer.html' %}
+<section class="goals-section">
+<div class="section-head"><h2>Мои цели</h2></div>
+<div class="goal-grid">
+{% for goal in goals %}
+<a class="goal-card" href="{{ url_for('goal_detail', goal_id=goal['id']) }}"><span class="goal-icon">✓</span><strong>{{ goal['name'] }}</strong><span class="arrow">→</span></a>
+{% else %}<p class="muted">Добавь первую цель, чтобы записывать занятия и запускать таймер.</p>{% endfor %}
+</div>
+<details class="add-goal" {% if not goals %}open{% endif %}><summary>+ Добавить цель</summary>
+<form method="post" action="{{ url_for('create_goal') }}" class="inline-form">{{ csrf() }}<input name="name" aria-label="Название новой цели" placeholder="Например, Python" required maxlength="120"><button class="button secondary">Добавить</button></form>
+</details>
+</section>
+{% if targets %}<details class="card"><summary>План на эту неделю</summary>
+{% for item in targets[:3] %}{{ target_card(item) }}{% endfor %}<a href="{{ url_for('targets') }}">Все планы →</a></details>{% endif %}
+<div class="section-head"><h2>Последние занятия</h2><a href="{{ url_for('history') }}">История →</a></div>
+{{ session_list(sessions) }}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, stat, session_list with context %}
+{% block title %}{{ goal['name'] }} — Study Tracker{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('index') }}">← Все цели</a>
+<div class="page-head"><div><p class="eyebrow">Учебная цель</p><h1>{{ goal['name'] }}</h1></div><a class="button primary" href="{{ url_for('new_session', goal_id=goal['id']) }}">+ Добавить занятие</a></div>
+<section class="stats-grid">{{ stat('Всего времени', format_minutes(stats.minutes)) }}{{ stat('Заданий', stats.tasks, stats.oral ~ ' устных · ' ~ stats.practical ~ ' практических') }}{{ stat('Занятий', stats.sessions) }}{{ stat('Серия', streak.current ~ ' дн.', 'Рекорд · ' ~ streak.longest ~ ' дн.') }}{{ stat('Лучший день', format_minutes(stats.best_minutes), stats.best_day or 'Пока нет занятий') }}{{ stat('Активных дней', streak.active) }}</section>
+<div class="section-head"><h2>Последние занятия</h2><a href="{{ url_for('history', goal_id=goal['id']) }}">История по дате →</a></div>
+{{ session_list(sessions) }}
+<details class="card danger-zone"><summary>Сбросить занятия этой цели</summary><p>Все занятия этой цели будут удалены, статистика пересчитается. Заметки дневника сохранятся.</p><form method="post" action="{{ url_for('reset', goal_id=goal['id']) }}" data-confirm="Удалить все занятия этой цели?">{{ csrf() }}<button class="button danger">Удалить все занятия</button></form></details>
+{% endblock %}

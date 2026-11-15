@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf with context %}
+{% block content %}
+<div class="page-head"><div><p class="eyebrow">Мысли после занятий</p><h1>Дневник обучения</h1></div><a class="button primary" href="{{ url_for('journal_form') }}">+ Новая запись</a></div>
+<form class="inline-form search-form"><input type="search" name="q" aria-label="Поиск по дневнику" placeholder="Найти тему, мысль или сложность" value="{{ search }}"><button class="button secondary">Найти</button></form>
+<div class="session-list">{% for entry in entries %}<article class="card journal-entry">
+<div class="session-head"><div><time class="muted">{{ entry.date }}</time><h2>{{ entry.topic }}</h2></div><a href="{{ url_for('journal_form', entry_id=entry.id) }}">Изменить</a></div>
+{% if entry.learned %}<h3>Что изучил</h3><p class="text-content">{{ entry.learned }}</p>{% endif %}
+{% if entry.difficulties %}<h3>Сложности</h3><p class="text-content muted">{{ entry.difficulties }}</p>{% endif %}
+{% if entry.session_id %}<a href="{{ url_for('edit_session', session_id=entry.session_id) }}">Открыть занятие →</a>{% endif %}
+</article>{% else %}<div class="card empty"><h3>{{ 'Ничего не найдено' if search else 'Сохрани первую мысль' }}</h3><p class="muted">{{ 'Попробуй другое слово.' if search else 'Запиши, что понял и к чему хочешь вернуться.' }}</p></div>{% endfor %}</div>
+{% endblock %}

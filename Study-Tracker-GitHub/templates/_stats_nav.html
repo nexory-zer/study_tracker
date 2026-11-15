@@ -1,0 +1,5 @@
+<nav class="stats-nav" aria-label="Разделы статистики">
+{% for endpoint, label in [('analytics','Сводка'),('efficiency','Темп занятий'),('targets','План недели')] %}
+<a href="{{ url_for(endpoint) }}" {% if request.endpoint == endpoint %}aria-current="page"{% endif %}>{{ label }}</a>
+{% endfor %}
+</nav>

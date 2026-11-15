@@ -1,0 +1,19 @@
+{% if goals %}
+<section class="card timer-card timer-inline" id="timer-app">
+<div class="timer-top"><div class="timer-choice"><label for="timer-goal">Над чем занимаешься?</label><select id="timer-goal">{% for goal in goals %}<option value="{{ goal['id'] }}" data-manual-url="{{ url_for('new_session', goal_id=goal['id']) }}">{{ goal['name'] }}</option>{% endfor %}</select></div>
+
+<div id="timer-clock" class="timer-clock" aria-label="Время занятия">00:00:00</div></div>
+<p id="timer-status" class="muted" aria-live="polite">Готов к занятию</p>
+<div class="timer-buttons"><button class="button primary" data-timer="start">Начать занятие</button><a id="manual-session" class="manual-link" href="{{ url_for('new_session', goal_id=goals[0]['id']) }}">Записать вручную</a><button class="button secondary" data-timer="pause" hidden>Пауза</button><button class="button primary" data-timer="resume" hidden>Продолжить</button><button class="button secondary" data-timer="finish" hidden>Завершить</button><button class="button danger" data-timer="cancel" hidden>Сбросить</button></div>
+<p id="timer-error" role="alert"></p>
+<form id="timer-save" hidden>
+<h2>Результат занятия</h2>
+<div class="two-cols"><label>Дата<input type="date" name="date" max="{{ today }}" required></label><label>Минуты<input type="number" name="duration_minutes" min="1" max="1440" required></label></div>
+<div class="two-cols"><label>Устных заданий<input type="number" name="oral_tasks" value="0" min="0" max="100000"></label><label>Практических заданий<input type="number" name="practical_tasks" value="0" min="0" max="100000"></label></div>
+<label>Что удалось сделать<textarea name="comment" rows="3" maxlength="10000"></textarea></label><p class="muted">Время округляется вверх до минуты. Дату и длительность можно уточнить перед сохранением.</p><button class="button primary">Сохранить занятие</button>
+</form>
+</section>
+<script id="timer-initial" type="application/json">{{ state|tojson }}</script>
+<script defer src="{{ url_for('static', filename='timer.js') }}"></script>
+
+{% endif %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf with context %}
+{% block title %}{{ profile.display_name }} — Study Tracker{% endblock %}
+{% block content %}
+<div class="profile-layout">
+<aside class="profile-aside">
+  <div class="profile-avatar" id="profile-avatar-preview">
+    <img {% if profile.avatar_version %}src="{{ url_for('profile_avatar', v=profile.avatar_version) }}"{% else %}hidden{% endif %} alt="Фото профиля">
+    <span class="avatar-person" {% if profile.avatar_version %}hidden{% endif %} aria-hidden="true"></span>
+  </div>
+  <details class="profile-settings" {% if editing %}open{% endif %}>
+    <summary class="button secondary">Изменить профиль</summary>
+    <form method="post" enctype="multipart/form-data">
+      {{ csrf() }}
+      <label>Имя<input name="display_name" value="{{ draft_name if editing else profile.display_name }}" required maxlength="60" autocomplete="nickname"></label>
+      <label>Фотография<input type="file" name="avatar" accept="image/png,image/jpeg,image/webp"></label>
+      <p class="muted file-hint">PNG, JPEG или WebP · до 5 МБ</p>
+      <button class="button primary">Сохранить профиль</button>
+    </form>
+  </details>
+  <p class="muted profile-last">Последнее занятие<br>{{ streak.last or 'Пока нет занятий' }}</p>
+</aside>
+<div class="profile-content">
+  <h1>{{ profile.display_name }}</h1>
+  <section class="card profile-activity" id="activity">
+    <div class="section-head"><h2>Активность за {{ year }} год</h2>
+      <div class="year-nav">
+      {% if year > 1901 %}<a class="button secondary" aria-label="Предыдущий год" href="{{ url_for('profile_view', year=year-1) }}#activity">←</a>{% endif %}
+      {% if year < 2099 %}<a class="button secondary" aria-label="Следующий год" href="{{ url_for('profile_view', year=year+1) }}#activity">→</a>{% endif %}
+      </div>
+    </div>
+    <div class="heatmap-scroll">
+      <div class="heat-months">{% for month in months %}<span style="grid-column:{{ month.column }}">{{ month.label }}</span>{% endfor %}</div>
+      <div class="heatmap" role="group" aria-label="Дни года {{ year }}">
+      {% for day in cells %}{% if day %}<a class="heat-cell level-{{ day.level }}" href="{{ url_for('history', date=day.date) }}" title="{{ day.date }} · {{ day.minutes }} мин · {{ day.tasks }} заданий" aria-label="{{ day.date }} — {{ day.minutes }} минут, {{ day.tasks }} заданий"></a>{% else %}<span class="heat-cell blank"></span>{% endif %}{% endfor %}
+      </div>
+    </div>
+    <div class="heat-legend"><span>Меньше</span>{% for level in range(5) %}<span class="heat-cell level-{{ level }}"></span>{% endfor %}<span>Больше</span></div>
+    <p class="activity-total">{{ format_minutes(year_stats.minutes) }} за год · {{ year_stats.active }} активных дней</p>
+    <div class="profile-records">
+      <div><strong>{{ streak.current }}</strong><span>дней подряд сейчас</span></div>
+      <div><strong>{{ streak.longest }}</strong><span>лучшая серия за всё время</span></div>
+      <div><strong>{{ total_stats.tasks }}</strong><span>заданий решено за всё время</span></div>
+    </div>
+  </section>
+  <details class="profile-achievements" id="achievements">
+    <summary>Достижения <span class="muted">{{ achievements|selectattr('unlocked')|list|length }} / {{ achievements|length }}</span></summary>
+    <div class="achievement-grid">{% for item in achievements %}<article class="card achievement {{ 'unlocked' if item.unlocked }}"><div class="medal" aria-hidden="true">{{ '★' if item.unlocked else '☆' }}</div><h2>{{ item.name }}</h2><progress value="{{ item.percent }}" max="100" aria-label="{{ item.name }}"></progress><small>{{ item.actual }} / {{ item.target }} {{ item.unit }}</small></article>{% endfor %}</div>
+    <p class="muted">Прогресс пересчитывается при изменении занятий.</p>
+  </details>
+</div>
+</div>
+{% endblock %}

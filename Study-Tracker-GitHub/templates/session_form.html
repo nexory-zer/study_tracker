@@ -1,0 +1,14 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf with context %}
+{% block title %}{{ heading }} — Study Tracker{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('goal_detail', goal_id=goal['id']) }}">← {{ goal['name'] }}</a>
+<div class="page-head"><h1>{{ heading }}</h1></div>
+<form method="post" class="card form-card">{{ csrf() }}
+<label>Дата<input type="date" name="date" max="{{ today }}" value="{{ form.get('date', today) }}" required></label>
+<label>Длительность, минут<input type="number" name="duration_minutes" min="1" max="1440" value="{{ form.get('duration_minutes', '') }}" required></label>
+<div class="two-cols"><label>Устных заданий<input type="number" name="oral_tasks" min="0" max="100000" value="{{ form.get('oral_tasks') or 0 }}"></label><label>Практических заданий<input type="number" name="practical_tasks" min="0" max="100000" value="{{ form.get('practical_tasks') or 0 }}"></label></div>
+<label>Что удалось сделать<textarea name="comment" rows="4" maxlength="10000" placeholder="Коротко о результате занятия">{{ form.get('comment') or '' }}</textarea></label>
+<button class="button primary">Сохранить занятие</button>
+</form>
+{% if editing %}<form method="post" action="{{ url_for('delete_session', session_id=session_id) }}" data-confirm="Удалить это занятие? Статистика и достижения пересчитаются." class="delete-form">{{ csrf() }}<button class="button danger">Удалить занятие</button></form>{% endif %}
+{% endblock %}

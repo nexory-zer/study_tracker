@@ -1,0 +1,21 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{% endmacro %}
+{% macro stat(label, value, detail='') %}
+<div class="stat"><span>{{ label }}</span><strong>{{ value }}</strong>{% if detail %}<small>{{ detail }}</small>{% endif %}</div>
+{% endmacro %}
+{% macro session_list(sessions) %}
+<div class="session-list">
+{% for item in sessions %}
+<article class="card session">
+  <div class="session-head"><div><h3>{{ item['goal_name'] }}</h3><time class="muted">{{ item['date'] }}</time></div>
+  <a href="{{ url_for('edit_session', session_id=item['id'], goal_id=item['goal_id']) }}">Изменить</a></div>
+  <p class="session-numbers">{{ format_minutes(item['duration_minutes']) }} <span>· {{ item['total_tasks'] or 0 }} заданий</span></p>
+  {% if item['comment'] %}<p class="comment">{{ item['comment'] }}</p>{% endif %}
+</article>
+{% else %}<div class="card empty"><h3>Здесь появятся занятия</h3><p class="muted">Добавь занятие в учебную цель или запусти таймер.</p></div>{% endfor %}
+</div>
+{% endmacro %}
+{% macro target_card(item) %}
+<div class="target-line"><strong>{{ item.goal_name or 'Все цели' }}</strong><span>{{ item.percent }}%</span></div>
+<progress max="100" value="{{ item.bar }}" aria-label="{{ item.goal_name or 'Все цели' }} — {{ metrics[item.metric] }}"></progress>
+<p class="muted">{{ metrics[item.metric] }} · {{ item.actual }} / {{ item.target }} · {% if item.remaining %}осталось {{ item.remaining }}{% else %}План выполнен{% endif %}</p>
+{% endmacro %}

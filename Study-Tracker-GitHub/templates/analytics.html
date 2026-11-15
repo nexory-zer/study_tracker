@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% from '_macros.html' import stat with context %}
+{% block content %}
+{% include '_stats_nav.html' %}
+<div class="page-head"><div><p class="eyebrow">Статистика занятий</p><h1>Статистика</h1></div><div class="segmented"><a class="{{ 'selected' if mode == 'week' }}" href="{{ url_for('analytics', mode='week', date=start.isoformat()) }}">Неделя</a><a class="{{ 'selected' if mode == 'month' }}" href="{{ url_for('analytics', mode='month', date=start.isoformat()) }}">Месяц</a></div></div>
+<div class="period-nav"><a class="button secondary" aria-label="Предыдущий период" href="{{ url_for('analytics', mode=mode, date=previous.isoformat()) }}">←</a><strong>{{ start.strftime('%d.%m.%Y') }} — {{ end.strftime('%d.%m.%Y') }}</strong><a class="button secondary" aria-label="Следующий период" href="{{ url_for('analytics', mode=mode, date=next_period.isoformat()) }}">→</a></div>
+<form class="date-form"><input type="hidden" name="mode" value="{{ mode }}"><label>Перейти к дате<input type="date" name="date" value="{{ start.isoformat() }}"></label><button class="button secondary">Показать</button></form>
+<section class="stats-grid">
+{{ stat('Время', format_minutes(stats.minutes), comparison.minutes ~ ' к прошлому периоду') }}
+{{ stat('Заданий', stats.tasks, comparison.tasks ~ ' к прошлому периоду') }}
+{{ stat('Активных дней', stats.active, comparison.active ~ ' к прошлому периоду') }}
+{{ stat('В среднем за день', format_minutes(stats.average_day), comparison.average_day ~ ' · Все календарные дни периода') }}
+{{ stat('Среднее занятие', format_minutes(stats.average_session), comparison.average_session ~ ' · По занятиям с указанным временем') }}
+{{ stat('Лучший день по времени', stats.best_day or '—', format_minutes(stats.best_minutes)) }}
+</section>
+<section class="card chart-card"><div class="section-head"><h2>Время по дням</h2><span class="muted">минуты</span></div><div class="chart-scroll"><div class="bar-chart {{ 'month-chart' if mode == 'month' }}">
+{% for day in bars %}<a class="bar-column" href="{{ url_for('history', date=day.date) }}" title="{{ day.date }} · {{ day.minutes }} мин · {{ day.tasks }} заданий"><span class="bar-value">{{ day.minutes }}</span><div class="bar-track"><span class="bar" style="height:{{ day.height }}%"></span></div><span>{{ day.label if mode == 'week' else day.number }}</span></a>{% endfor %}
+</div></div>{% if not stats.sessions %}<p class="muted">В этом периоде занятий пока нет.</p>{% endif %}</section>
+{% if mode == 'month' %}<p class="muted">Максимальная серия внутри месяца · {{ stats.longest_streak }} дн.</p>{% endif %}
+<p class="muted">Сравниваются полные календарные периоды. Текущий период ещё продолжается.</p>
+{% endblock %}

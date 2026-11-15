@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% from '_macros.html' import session_list with context %}
+{% block content %}
+{% if goal %}<a class="back" href="{{ url_for('goal_detail', goal_id=goal['id']) }}">← {{ goal['name'] }}</a>{% endif %}
+<div class="page-head"><h1>История занятий</h1></div>
+<form method="get" class="date-form"><label>Дата<input type="date" name="date" value="{{ selected_date }}"></label><button class="button secondary">Показать</button></form>
+<p class="muted">{{ format_minutes(total.minutes) }} · {{ total.tasks }} заданий · {{ total.sessions }} занятий</p>
+{{ session_list(sessions) }}
+{% endblock %}

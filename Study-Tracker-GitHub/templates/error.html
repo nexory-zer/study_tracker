@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<div class="card empty"><h1>{{ error.code }}</h1><p>{{ 'Страница или запись не найдена.' if error.code == 404 else 'Не удалось выполнить действие. Обновите страницу и повторите попытку.' }}</p><a class="button primary" href="{{ url_for('index') }}">На главную</a></div>{% endblock %}
